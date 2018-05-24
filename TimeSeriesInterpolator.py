@@ -83,7 +83,7 @@ dn_sm, up_sm, dn_slope, up_slope
 
 if __name__ == '__main__':
     
-    in_put = {'TimeToMaturity':130,'strike':list(range(2000,4000,50))}  #输入希望球的 vol(K,T)
+    in_put = {'TimeToMaturity':100,'strike':[2600]}  #输入希望球的 vol(K,T)
     
     bench_time = [60,120,180]  #输入benchmark的时间，从小到大
     

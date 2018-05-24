@@ -16,9 +16,12 @@ import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 
+def clear(entry):  
+    entry.delete(0, END)  
+    
 def pack(all_entry):
     
-    benchmark = pd.DataFrame({'f_atm':[float(all_entry[4].get()),float(all_entry[5].get()),float(all_entry[6].get()),float(all_entry[7].get())], \
+    benchmark = pd.DataFrame({'f_atm':[float(all_entry[4].get()),float(all_entry[4].get()),float(all_entry[4].get()),float(all_entry[4].get())], \
                           'days':[float(all_entry[0].get()),float(all_entry[1].get()),float(all_entry[2].get()),float(all_entry[3].get())], \
                           'alpha':[float(all_entry[8].get()),float(all_entry[9].get()),float(all_entry[10].get()),float(all_entry[11].get())],\
                           'f_ref':[float(all_entry[12].get()),float(all_entry[13].get()),float(all_entry[14].get()),float(all_entry[15].get())],\
@@ -36,36 +39,44 @@ def pack(all_entry):
                           'dn_slope':[float(all_entry[60].get()),float(all_entry[61].get()),float(all_entry[62].get()),float(all_entry[63].get())], \
                           'up_slope':[float(all_entry[64].get()),float(all_entry[65].get()),float(all_entry[66].get()),float(all_entry[67].get())]})
     
+    benchmark.index = [0,0,0,0]
+    
     return benchmark
 
-def drawPic(all_entry):
-    drawPic_2D(all_entry)
-    drawPic_3D(all_entry)
-    
 
-def drawPic_2D(all_entry):
+def drawPic(all_entry,sig):
     
-    #清空图像，以使得前后两次绘制的图像不会重叠  
-    drawPic_2D.f.clf()  
-    drawPic_2D.a=drawPic_2D.f.add_subplot(111)  
-         
-    #在[0,100]范围内随机生成sampleCount个数据点  
+    drawPic_2D(all_entry,sig)
+    drawPic_3D(all_entry,sig)
+    
+    
+def cal_surface(all_entry):
     benchmark = pack(all_entry)
+    
     
     fatm1 = max(benchmark.loc[:,'f_atm'])
     fref1 = max(benchmark.loc[:,'f_ref'])
     fatm2 = min(benchmark.loc[:,'f_atm'])
     fref2 = min(benchmark.loc[:,'f_ref'])
     
-    up = max(fatm1,fref1)*2
-    down = min(fatm2,fref2)*0.5
-    strike_lst = list(np.arange(down,up,(up-down)/100))
+    up = max(fatm1,fref1)*2.5
+    down = min(fatm2,fref2)*0.2
+    strike_lst = list(np.arange(down,up,(up-down)/500))
+    
+    #Tmin = min(benchmark.loc[:,'days'])
+    #Tmax = max(benchmark.loc[:,'days'])
+    
+    T_lst = (benchmark.loc[:,'days']).tolist()  #保证benchmark有
+    
+    #T_lst = T_lst+list(np.arange(Tmin,Tmax*2,int((Tmax-Tmin)/3)))
+    #T_lst = list(set(T_lst))
+    T_lst.sort()
     
     res = pd.DataFrame()
-    benchmark.index = [0,0,0,0]
+    
     #print(benchmark)
     
-    for eachtime in benchmark.loc[:,'days'].tolist():
+    for eachtime in T_lst:
         
         in_put = {'TimeToMaturity':eachtime,'strike':strike_lst}
         tmp = TimeSeriesInterpolator.time_interpolate(benchmark,in_put)
@@ -73,40 +84,87 @@ def drawPic_2D(all_entry):
         tmp.columns = ['vol_%ddays'%eachtime]
         res = pd.concat([res,tmp], axis=1, join_axes=[tmp.index])
     #print(res)
+    
+    return res,strike_lst,T_lst,benchmark
+
+def cal_vol(all_entry,entry181,entry182,output183):
+    
+    benchmark = pack(all_entry)
+    
+    #in_put = {'TimeToMaturity':100,'strike':[2600]}
+    in_put = {'TimeToMaturity':float(entry182.get()),'strike':[float(entry181.get())]}
+    tmp = TimeSeriesInterpolator.time_interpolate(benchmark,in_put)
+    clear(output183)
+    tmp.set_index('strike',inplace=True)
+    output183.insert(END, '%.2f%%'%(tmp.values[0,0]*100))
+
+
+def drawPic_2D(all_entry,sig):
+    
+     
+    res,strike_lst,T_lst,benchmark = cal_surface(all_entry)
+    
+    #清空图像，以使得前后两次绘制的图像不会重叠 
+    drawPic_2D.f.clf()  
+    drawPic_2D.a=drawPic_2D.f.add_subplot(111) 
+    
     legend=[]
     i = 0
+    
+    if sig == 'Log':
+        res.index = np.log(res.index/benchmark.loc[0,'f_atm'].values[0])
+        drawPic_2D.a.set_xlabel('LogStrikeRatio')
+    elif sig == 'Strike':
+        drawPic_2D.a.set_xlabel('Strike')
+    else:
+        pass
     
     for each in res.columns:
         drawPic_2D.a.plot(res.index,res.loc[:,each],'-',linewidth=2,markersize=10)
         legend.append(each)
         i+=1
-        
+    
     drawPic_2D.a.grid(color='black',linestyle='--',linewidth=0.5)
     drawPic_2D.a.legend(legend,fontsize=8)
+    
+    drawPic_2D.a.set_ylabel('Volatility')
+    
+    drawPic_2D.a.set_yticklabels(['%.2f'%(x*100)+'%' for x in drawPic_2D.a.get_yticks()])  #改百分号
+
     
     drawPic_2D.canvas.show()
 
    
-def drawPic_3D(all_entry):
+def drawPic_3D(all_entry,sig):
+    
+    res,strike_lst,T_lst,benchmark = cal_surface(all_entry)
     
     #清空图像，以使得前后两次绘制的图像不会重叠  
-    pass
-#    drawPic_3D.f.clf()  
-#    drawPic_3D.a = drawPic_3D.f.add_subplot(111)  
-#    fig = plt.figure()
-#    ax = Axes3D(fig)
-#    X = np.arange(-4, 4, 0.25)
-#    Y = np.arange(-4, 4, 0.25)
-#    X, Y = np.meshgrid(X, Y)
-#    R = np.sqrt(X**2 + Y**2)
-#    Z = np.sin(R)
-#    #drawPic_3D.a.plot(X,Y,Z)
-#    # 具体函数方法可用 help(function) 查看，如：help(ax.plot_surface)
-#    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='rainbow')
-#    #ax = plt.plot(X,Y)
-#    
-#    drawPic_3D.a.figure = ax.figure
-#    drawPic_3D.canvas.show()
+    
+    drawPic_3D.f.clf()  
+    drawPic_3D.a = drawPic_3D.f.add_subplot(111,projection='3d')
+    
+    K = np.array(strike_lst)
+    T = np.array(T_lst)/365
+    
+    if sig == 'Log':
+        K = np.log(K/benchmark.loc[0,'f_atm'].values[0])
+        drawPic_3D.a.set_xlabel('LogStrikeRatio')
+    elif sig == 'Strike':
+        drawPic_3D.a.set_xlabel('Strike')
+    else:
+        pass
+    
+    K, T= np.meshgrid(K, T)
+    
+    res = res.T
+
+    # 具体函数方法可用 help(function) 查看，如：help(ax.plot_surface)
+    drawPic_3D.a.plot_surface(K, T, res, rstride=1, cstride=1, cmap='rainbow')
+    drawPic_3D.a.set_ylabel('TimeToMaturity') 
+    drawPic_3D.a.set_zlabel('Volatility')
+    drawPic_3D.a.set_zticklabels(['%.2f'%(x*100)+'%' for x in drawPic_3D.a.get_zticks()])  #改百分号
+    drawPic_3D.canvas.show()
     
     
 
@@ -146,11 +204,11 @@ def cal():
                       activebackground = button_active_bg,font=label_font)
     label.grid(row=0, column=4, columnspan=1, sticky=W+E, padx=10,  pady=5)
     
-    label = Label(root,justify="left", text='2维波动率曲线', fg='blue',bg=button_bg, padx=10, pady=3,\
+    label = Label(root,justify="left", text='2维波动率曲线', fg='red',bg=button_bg, padx=10, pady=3,\
                       activebackground = button_active_bg,font=label_font)
     label.grid(row=0,column=5,rowspan=1,columnspan=4)
     
-    label = Label(root,justify="left", text='3维波动率曲线', fg='blue',bg=button_bg, padx=10, pady=3,\
+    label = Label(root,justify="left", text='3维波动率曲线', fg='red',bg=button_bg, padx=10, pady=3,\
                       activebackground = button_active_bg,font=label_font)
     label.grid(row=10,column=5,rowspan=1,columnspan=4)
     
@@ -179,37 +237,37 @@ def cal():
     entry14.grid(row=1, column=4, columnspan=1, sticky=W, padx=30,  pady=5)  
     entry14.insert(0,'180')
     
-    entry21 = Entry(root, justify="right", font=entry_font,width=10)
-    entry21.grid(row=2, column=1, columnspan=1, sticky=W, padx=30,  pady=5)  
+    entry21 = Entry(root, justify="right", font=entry_font,width=75)
+    entry21.grid(row=2, column=1, columnspan=4, sticky=W, padx=30,  pady=5)  
     entry21.insert(0,'2700')
     
-    entry22 = Entry(root, justify="right", font=entry_font,width=10)
-    entry22.grid(row=2, column=2, columnspan=1, sticky=W, padx=30,  pady=5)  
-    entry22.insert(0,'2700')
+    #entry22 = Entry(root, justify="right", font=entry_font,width=10)
+    #entry22.grid(row=2, column=2, columnspan=1, sticky=W, padx=30,  pady=5)  
+    #entry22.insert(0,'2700')
     
-    entry23 = Entry(root, justify="right", font=entry_font,width=10)
-    entry23.grid(row=2, column=3, columnspan=1, sticky=W, padx=30,  pady=5)  
-    entry23.insert(0,'2700')
+    #entry23 = Entry(root, justify="right", font=entry_font,width=10)
+    #entry23.grid(row=2, column=3, columnspan=1, sticky=W, padx=30,  pady=5)  
+    #entry23.insert(0,'2700')
     
-    entry24 = Entry(root, justify="right", font=entry_font,width=10)
-    entry24.grid(row=2, column=4, columnspan=1, sticky=W, padx=30,  pady=5)  
-    entry24.insert(0,'2700')
+    #entry24 = Entry(root, justify="right", font=entry_font,width=10)
+    #entry24.grid(row=2, column=4, columnspan=1, sticky=W, padx=30,  pady=5)  
+    #entry24.insert(0,'2700')
     
     entry31 = Entry(root, justify="right", font=entry_font,width=10)
     entry31.grid(row=3, column=1, columnspan=1, sticky=W, padx=30,  pady=5)  
-    entry31.insert(0,'0')
+    entry31.insert(0,'0.3')
     
     entry32 = Entry(root, justify="right", font=entry_font,width=10)
     entry32.grid(row=3, column=2, columnspan=1, sticky=W, padx=30,  pady=5)  
-    entry32.insert(0,'0')
+    entry32.insert(0,'0.3')
     
     entry33 = Entry(root, justify="right", font=entry_font,width=10)
     entry33.grid(row=3, column=3, columnspan=1, sticky=W, padx=30,  pady=5)  
-    entry33.insert(0,'0')
+    entry33.insert(0,'0.3')
     
     entry34 = Entry(root, justify="right", font=entry_font,width=10)
     entry34.grid(row=3, column=4, columnspan=1, sticky=W, padx=30,  pady=5)  
-    entry34.insert(0,'0')
+    entry34.insert(0,'0.3')
     
     entry41 = Entry(root, justify="right", font=entry_font,width=10)
     entry41.grid(row=4, column=1, columnspan=1, sticky=W, padx=30,  pady=5)  
@@ -435,7 +493,7 @@ def cal():
     entry174.grid(row=17, column=4, columnspan=1, sticky=W, padx=30,  pady=5)  
     entry174.insert(0,'0.001')
     
-    all_entry = [entry11,entry12,entry13,entry14,entry21,entry22,entry23,entry24,\
+    all_entry = [entry11,entry12,entry13,entry14,entry21,0,0,0,\
                  entry31,entry32,entry33,entry34,entry41,entry42,entry43,entry44,\
                  entry51,entry52,entry53,entry54,entry61,entry62,entry63,entry64,\
                  entry71,entry72,entry73,entry74,entry81,entry82,entry83,entry84,\
@@ -456,8 +514,49 @@ def cal():
     drawPic_3D.canvas.show()
     drawPic_3D.canvas.get_tk_widget().grid(row=11,column=5,rowspan=9,columnspan=4)
     
-    Button(root,text='输出',bg=button_bg, padx=50, pady=3,font=button_font,fg='green',\
-           command=lambda : drawPic(all_entry), activebackground = button_active_bg).grid(row=18,column=1,rowspan=1,columnspan=4)
+    Button(root,text='输出Strike基准',bg=button_bg, padx=50, pady=3,font=button_font,fg='green',\
+           command=lambda : drawPic(all_entry,'Strike'), activebackground = button_active_bg).grid(row=18,column=1,rowspan=1,columnspan=2)
+    
+    Button(root,text='输出Log基准',bg=button_bg, padx=50, pady=3,font=button_font,fg='green',\
+           command=lambda : drawPic(all_entry,'Log'), activebackground = button_active_bg).grid(row=18,column=3,rowspan=1,columnspan=2)
+    
+    
+    #计算功能
+    label = Label(root,justify="left", text='单点计算', fg='blue',bg=button_bg, padx=10, pady=3,\
+                      activebackground = button_active_bg,font=label_font)
+    label.grid(row=0, column=9, columnspan=2, sticky=W+E, padx=10,  pady=5)
+    
+    label = Label(root,justify="left", text='行权价', fg='blue',bg=button_bg, padx=10, pady=3,\
+                      activebackground = button_active_bg,font=label_font)
+    label.grid(row=1, column=9, columnspan=1, sticky=W+E, padx=10,  pady=5)
+    
+    label = Label(root,justify="left", text='到期天数', fg='blue',bg=button_bg, padx=10, pady=3,\
+                      activebackground = button_active_bg,font=label_font)
+    label.grid(row=2, column=9, columnspan=1, sticky=W+E, padx=10,  pady=5)
+    
+    entry181 = Entry(root, justify="right", font=entry_font,width=10)
+    entry181.grid(row=1, column=10, columnspan=1, sticky=W, padx=30,  pady=5)  
+    entry181.insert(0,'2700')
+    
+    entry182 = Entry(root, justify="right", font=entry_font,width=10)
+    entry182.grid(row=2, column=10, columnspan=1, sticky=W, padx=30,  pady=5)  
+    entry182.insert(0,'90')
+    
+    label = Label(root,justify="left", text='波动率', fg='blue',bg=button_bg, padx=10, pady=3,\
+                      activebackground = button_active_bg,font=label_font)
+    label.grid(row=4, column=9, columnspan=1, sticky=W+E, padx=10,  pady=5)
+    
+    output183 = Entry(root, justify="right", font=entry_font,width=10)
+    output183.grid(row=4, column=10, columnspan=1, sticky=W, padx=30,  pady=5)  
+    
+    Button(root,text='输出波动率',bg=button_bg, padx=50, pady=3,font=button_font,fg='green',\
+           command=lambda : cal_vol(all_entry,entry181,entry182,output183), activebackground = button_active_bg).grid(row=3,column=9,rowspan=1,columnspan=2)
+    
+    
+
+    
+    
+    
     #启动事件循环  
     
     root.mainloop()
