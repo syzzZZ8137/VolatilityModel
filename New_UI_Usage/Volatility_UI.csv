@@ -1,0 +1,32 @@
+LabelName;DBparaname;DataCurr;DataDownBound;DataUpBound;Step;DataType;row;column;Group
+Volatility Reference;vol_ref;0.125;0;1000000;0.001;SpinBox;1;3;Volatility Settings
+Volatility Change Rate;vcr;0;-1000000;1000000;0.001;SpinBox;3;3;Volatility Settings
+Current Volatility;;0.24;NA;NA;NA;Label;5;3;Volatility Settings
+Slope Reference;slope_ref;0.38;-1000000;1000000;0.01;SpinBox;7;3;Volatility Settings
+Slope Change Rate;scr;0;-1000000;1000000;0.01;SpinBox;9;3;Volatility Settings
+Current Slope;;0.38;NA;NA;NA;Label;11;3;Volatility Settings
+Put Curvature;put_curv;2.1;-1000000;1000000;0.01;SpinBox;13;3;Volatility Settings
+Call Curvature;call_curv;-2.3;-1000000;1000000;0.01;SpinBox;15;3;Volatility Settings
+Down Cutoff;dn_cf;-0.055;-1000000;1000000;0.001;SpinBox;17;3;Volatility Settings
+Up Cutoff;up_cf;0.055;-1000000;1000000;0.001;SpinBox;19;3;Volatility Settings
+Down Smoothing Range;dn_sm;1;0;1000000;0.01;SpinBox;21;3;Volatility Settings
+Up Smoothing Range;up_sm;1;0;1000000;0.01;SpinBox;23;3;Volatility Settings
+Down Slope;dn_slope;0.0001;-1000000;1000000;0.001;SpinBox;25;3;Volatility Settings
+Up Slope;up_slope;0.0001;-1000000;1000000;0.001;SpinBox;27;3;Volatility Settings
+Volatility Reference;vol_ref_offset;0.05;0;1000000;0.001;SpinBox;1;4;Volatility Offset
+Volatility Change Rate;vcr_offset;0;-1000000;1000000;0.001;SpinBox;3;4;Volatility Offset
+Current Volatility;;0;NA;NA;NA;Label;5;4;Volatility Offset
+Slope Reference;slope_ref_offset;0.02;-1000000;1000000;0.01;SpinBox;7;4;Volatility Offset
+Slope Change Rate;scr_offset;0;-1000000;1000000;0.01;SpinBox;9;4;Volatility Offset
+Current Slope;;0;NA;NA;NA;Label;11;4;Volatility Offset
+Put Curvature;put_curv_offset;0.22;-1000000;1000000;0.01;SpinBox;13;4;Volatility Offset
+Call Curvature;call_curv_offset;0.36;-1000000;1000000;0.01;SpinBox;15;4;Volatility Offset
+Down Cutoff;dn_cf_offset;-0.1;-1000000;1000000;0.001;SpinBox;17;4;Volatility Offset
+Up Cutoff;up_cf_offset;0.1;-1000000;1000000;0.001;SpinBox;19;4;Volatility Offset
+Down Smoothing Range;dn_sm_offset;1;0;1000000;0.01;SpinBox;21;4;Volatility Offset
+Up Smoothing Range;up_sm_offset;1;0;1000000;0.01;SpinBox;23;4;Volatility Offset
+Down Slope;dn_slope_offset;0;-1000000;1000000;0.001;SpinBox;25;4;Volatility Offset
+Up Slope;up_slope_offset;0;-1000000;1000000;0.001;SpinBox;27;4;Volatility Offset
+Time Weighting Effect;alpha;0.1;-1000000;1000000;0.01;SpinBox;3;2;Wing Model Setting
+Reference Price;f_ref;2780;0;1000000;1;SpinBox;5;2;Wing Model Setting
+SSR;ssr;50;0;100;1;SpinBox;7;2;Wing Model Setting
