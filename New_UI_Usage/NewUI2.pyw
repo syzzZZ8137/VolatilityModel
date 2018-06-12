@@ -27,6 +27,10 @@ import GetUnderling
 #%%
 def clear(entry):
     entry.delete(0, END)
+
+def clear_point():
+    drawPic(0)
+    
 #%%
 def selection():
     global is_sell,is_buy,is_mid,var_lst,is_day
@@ -331,11 +335,11 @@ def vol_cal(days_cal,strike_cal,vol_mid,vol_buy,vol_sell):
     vol_sell.insert(0,vols)
     
     if is_mid == 1:
-        drawPic_3D.a.scatter(strike[0], T, volm/100, marker='o',s=200,color='red')
+        drawPic_3D.a.scatter(strike[0], T, volm/100, marker='o',s=50,color='red')
     if is_buy == 1:
-        drawPic_3D.a.scatter(strike[0], T, volb/100, marker='o',s=200,color='red')
+        drawPic_3D.a.scatter(strike[0], T, volb/100, marker='o',s=50,color='red')
     if is_sell == 1:
-        drawPic_3D.a.scatter(strike[0], T, vols/100, marker='o',s=200,color='red')
+        drawPic_3D.a.scatter(strike[0], T, vols/100, marker='o',s=50,color='red')
 
     
     
@@ -672,8 +676,12 @@ vol_sell.grid(row=28,column=2,sticky=N+W, padx=10,  pady=5)
 bt = Button(labelbt7,text='Calculate',bg=button_bg, padx=50, pady=3,fg='green',\
            command=lambda : vol_cal(days_cal,strike_cal,vol_mid,vol_buy,vol_sell),activebackground = button_active_bg,\
            font = tkFont.Font(size=12, weight=tkFont.BOLD))
-bt.grid(row=25,column=1,columnspan=2,sticky=N+W, padx=10,  pady=5)
+bt.grid(row=25,column=1,columnspan=1,sticky=N+W, padx=10,  pady=5)
 
+bt = Button(labelbt7,text='Clear',bg=button_bg, padx=50, pady=3,fg='green',\
+           command=lambda : clear_point(),activebackground = button_active_bg,\
+           font = tkFont.Font(size=12, weight=tkFont.BOLD))
+bt.grid(row=25,column=2,columnspan=1,sticky=N+W, padx=10,  pady=5)
 
 
 root.mainloop()
