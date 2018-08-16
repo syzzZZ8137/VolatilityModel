@@ -436,6 +436,7 @@ def contract_to_day(event):
         checkbt = Checkbutton(labelbt6,text=str(bench_day[i]),\
                               variable=var, onvalue=1, offvalue=0,\
                               command=selection)
+        #checkbt.select()
         checkbt.grid(row=15+i,column=2,rowspan=1,columnspan=1)
         var_lst.append(var)
         is_day.append(0)
@@ -565,7 +566,7 @@ labelframe = LabelFrame(title_labelframe['Wing Model Setting'], text='X_inc')
 labelframe.grid(row=8,column=1,sticky=N+W, padx=10,  pady=5)
 x_inc = Spinbox(labelframe,from_ = 0,to = 100000,increment = 1,command = lambda :save(0))
 clear(x_inc)
-x_inc.insert(0,25)
+x_inc.insert(0,15)
 x_inc.grid(row=8,column=1,sticky=N+W, padx=10,  pady=5)
 x_inc.bind('<Return>',drawPic)
 
@@ -619,16 +620,19 @@ checkbt1 = Checkbutton(labelbt5,text='Buy',\
                        variable=var1, onvalue=1, offvalue=0,\
                        command=selection)
 checkbt1.grid(row=15,column=1,rowspan=1,columnspan=1)
+#checkbt1.select()
 
 checkbt2 = Checkbutton(labelbt5,text='Sell',\
                        variable=var2, onvalue=1, offvalue=0,\
                        command=selection)
 checkbt2.grid(row=16,column=1,rowspan=1,columnspan=1)
+#checkbt2.select()
 
 checkbt3 = Checkbutton(labelbt5,text='Mid',\
                        variable=var3, onvalue=1, offvalue=0,\
                        command=selection)
 checkbt3.grid(row=17,column=1,rowspan=1,columnspan=1)
+checkbt3.select()
 
 global labelbt6
 #Display Benchmarks 根据数据库中有多少个days数据产生

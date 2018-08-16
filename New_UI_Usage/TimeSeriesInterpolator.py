@@ -74,6 +74,7 @@ def time_interpolate(benchmark,in_put):
 
 def benchmark_interpoints(X_lst,benchmark):
     res = []
+    print(benchmark['day'].tolist())
     for each in benchmark['day'].tolist():
         tmp = get_curve(X_lst,each,benchmark)
         strike_lst = [tmp['x0_to_X'],tmp['x1_to_X'],tmp['f_syn'],tmp['x2_to_X'],tmp['x3_to_X']]
